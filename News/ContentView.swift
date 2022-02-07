@@ -15,10 +15,9 @@ struct News: Codable {
     var articles: [Article]
 }
 
-// lil api provides title, url, image and source, giving each their types here
+// lil api provides title, date, url, image and source, giving each their types here
 struct Article: Codable, Hashable {
     var title: String
-    var author: String
     var date: String
     var url: String
     var image: String?
@@ -45,12 +44,6 @@ struct ContentView: View {
                     ProgressView()
                 } else {
                     List {
-                        HStack {
-                            Text("Top Stories")
-                                .foregroundColor(.red)
-                                .font(.largeTitle)
-                                .bold()
-                        }
                         // loops through the articles fetched from lil api
                         ForEach(articles, id: \.self) { article in
                             ArticleView(article: article)
@@ -60,32 +53,32 @@ struct ContentView: View {
                             if !searchText.isEmpty {
                                 articles = articles.filter { $0.title.contains(searchText) }
                             } else {
-                                articles = articles
+                                loadNews()
                             }
                         }
                         
                         HStack {
-                            Text("Developed by Conner Luzier 👨🏼‍💻")
                             // display version
-                            Text(appVersion!)
+                            Text("Developed by Conner Luzier 👨🏼‍💻 " + appVersion!)
                         }
                         .listRowInsets(EdgeInsets())
                         .frame(maxWidth: .infinity, minHeight: 60)
                         .background(Color(UIColor.systemGroupedBackground))
                     }
-                    // text at top of the application
-                    .navigationTitle("📰 News")
                     .toolbar {
                                 ToolbarItem(placement: .principal) {
                                     VStack {
-                                        // display the date in the toolbar at top of application
-                                        Text(Date().addingTimeInterval(600), style: .date)
+                                        Text("Top Stories")
+                                            .foregroundColor(.red)
+                                            .font(.largeTitle)
+                                            .bold()
                                     }
                                 }
                             }
                     
                     // search bar to filter results
-                    .searchable(text: $searchText, prompt: "Search for articles...")
+                    
+                    .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search for articles...")
                     
                     // pull down to refresh news articles from api
                     .refreshable {
@@ -139,6 +132,7 @@ struct ArticleView: View {
                     VStack (alignment: .leading, spacing: 6) {
                         Text(article.title)
                             .font(.system(.headline, design: .serif))
+                        // need to eventually fix date formatting
                         Text(article.date)
                             .font(.footnote)
                         Text(article.source)
